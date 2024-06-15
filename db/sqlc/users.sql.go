@@ -7,7 +7,39 @@ package BlogEnginedb
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const createPost = `-- name: CreatePost :one
+INSERT INTO posts(
+    title,
+    content,
+    author_id
+) VALUES (
+    $1, $2, $3
+) RETURNING post_id, title, content, author_id, published_at, updated_at
+`
+
+type CreatePostParams struct {
+	Title    string      `json:"title"`
+	Content  string      `json:"content"`
+	AuthorID pgtype.Int8 `json:"author_id"`
+}
+
+func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Posts, error) {
+	row := q.db.QueryRow(ctx, createPost, arg.Title, arg.Content, arg.AuthorID)
+	var i Posts
+	err := row.Scan(
+		&i.PostID,
+		&i.Title,
+		&i.Content,
+		&i.AuthorID,
+		&i.PublishedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
@@ -27,6 +59,97 @@ type CreateUserParams struct {
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (Users, error) {
 	row := q.db.QueryRow(ctx, createUser, arg.Username, arg.Email, arg.PasswordHash)
+	var i Users
+	err := row.Scan(
+		&i.UserID,
+		&i.Username,
+		&i.Email,
+		&i.PasswordHash,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users 
+WHERE user_id = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, userID int64) error {
+	_, err := q.db.Exec(ctx, deleteUser, userID)
+	return err
+}
+
+const getUser = `-- name: GetUser :one
+SELECT user_id, username, email, password_hash, created_at FROM users
+WHERE user_id = $1 LIMIT 1
+`
+
+func (q *Queries) GetUser(ctx context.Context, userID int64) (Users, error) {
+	row := q.db.QueryRow(ctx, getUser, userID)
+	var i Users
+	err := row.Scan(
+		&i.UserID,
+		&i.Username,
+		&i.Email,
+		&i.PasswordHash,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const listUsers = `-- name: ListUsers :many
+SELECT user_id, username, email, password_hash, created_at FROM users
+ORDER BY user_id
+LIMIT $1
+OFFSET $2
+`
+
+type ListUsersParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]Users, error) {
+	rows, err := q.db.Query(ctx, listUsers, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Users
+	for rows.Next() {
+		var i Users
+		if err := rows.Scan(
+			&i.UserID,
+			&i.Username,
+			&i.Email,
+			&i.PasswordHash,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateUsername = `-- name: UpdateUsername :one
+UPDATE users
+SET username = $2
+WHERE user_id = $1
+RETURNING user_id, username, email, password_hash, created_at
+`
+
+type UpdateUsernameParams struct {
+	UserID   int64  `json:"user_id"`
+	Username string `json:"username"`
+}
+
+func (q *Queries) UpdateUsername(ctx context.Context, arg UpdateUsernameParams) (Users, error) {
+	row := q.db.QueryRow(ctx, updateUsername, arg.UserID, arg.Username)
 	var i Users
 	err := row.Scan(
 		&i.UserID,
