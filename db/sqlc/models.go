@@ -5,47 +5,47 @@
 package BlogEnginedb
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
 )
 
 type Categories struct {
-	CategoryID int64              `json:"category_id"`
-	Name       string             `json:"name"`
-	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	CategoryID int64        `json:"category_id"`
+	Name       string       `json:"name"`
+	CreatedAt  sql.NullTime `json:"created_at"`
 }
 
 type Comments struct {
-	CommentID int64              `json:"comment_id"`
-	PostID    pgtype.Int8        `json:"post_id"`
-	AuthorID  pgtype.Int8        `json:"author_id"`
-	Content   string             `json:"content"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	CommentID int64         `json:"comment_id"`
+	PostID    sql.NullInt64 `json:"post_id"`
+	AuthorID  sql.NullInt64 `json:"author_id"`
+	Content   string        `json:"content"`
+	CreatedAt sql.NullTime  `json:"created_at"`
 }
 
 type Likes struct {
-	LikeID    int64              `json:"like_id"`
-	PostID    pgtype.Int8        `json:"post_id"`
-	AuthorID  pgtype.Int8        `json:"author_id"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	LikeID    int64         `json:"like_id"`
+	PostID    sql.NullInt64 `json:"post_id"`
+	AuthorID  sql.NullInt64 `json:"author_id"`
+	CreatedAt sql.NullTime  `json:"created_at"`
 }
 
 type PostCategories struct {
-	PostID     pgtype.Int8 `json:"post_id"`
-	CategoryID pgtype.Int8 `json:"category_id"`
+	PostID     sql.NullInt64 `json:"post_id"`
+	CategoryID sql.NullInt64 `json:"category_id"`
 }
 
 type PostTags struct {
-	PostID pgtype.Int8 `json:"post_id"`
-	TagID  pgtype.Int8 `json:"tag_id"`
+	PostID sql.NullInt64 `json:"post_id"`
+	TagID  sql.NullInt64 `json:"tag_id"`
 }
 
 type Posts struct {
-	PostID      int64              `json:"post_id"`
-	Title       string             `json:"title"`
-	Content     string             `json:"content"`
-	AuthorID    pgtype.Int8        `json:"author_id"`
-	PublishedAt pgtype.Timestamptz `json:"published_at"`
-	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	PostID      int64         `json:"post_id"`
+	Title       string        `json:"title"`
+	Content     string        `json:"content"`
+	AuthorID    sql.NullInt64 `json:"author_id"`
+	PublishedAt sql.NullTime  `json:"published_at"`
+	UpdatedAt   sql.NullTime  `json:"updated_at"`
 }
 
 type PostsPostCategories struct {
@@ -59,15 +59,15 @@ type PostsPostTags struct {
 }
 
 type Tags struct {
-	TagID     int64              `json:"tag_id"`
-	Name      string             `json:"name"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	TagID     int64        `json:"tag_id"`
+	Name      string       `json:"name"`
+	CreatedAt sql.NullTime `json:"created_at"`
 }
 
 type Users struct {
-	UserID       int64              `json:"user_id"`
-	Username     string             `json:"username"`
-	Email        string             `json:"email"`
-	PasswordHash string             `json:"password_hash"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	UserID       int64        `json:"user_id"`
+	Username     string       `json:"username"`
+	Email        string       `json:"email"`
+	PasswordHash string       `json:"password_hash"`
+	CreatedAt    sql.NullTime `json:"created_at"`
 }
