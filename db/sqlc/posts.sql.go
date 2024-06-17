@@ -10,6 +10,51 @@ import (
 	"database/sql"
 )
 
+const chekIfLikeExists = `-- name: ChekIfLikeExists :one
+SELECT EXISTS (SELECT 1 FROM "likes" WHERE "post_id" = $1 AND "author_id" = $2)
+`
+
+type ChekIfLikeExistsParams struct {
+	PostID   sql.NullInt64 `json:"post_id"`
+	AuthorID sql.NullInt64 `json:"author_id"`
+}
+
+func (q *Queries) ChekIfLikeExists(ctx context.Context, arg ChekIfLikeExistsParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, chekIfLikeExists, arg.PostID, arg.AuthorID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const craeteComment = `-- name: CraeteComment :one
+INSERT INTO comments(
+    post_id,
+    author_id,
+    content
+) VALUES (
+    $1, $2, $3
+) RETURNING comment_id, post_id, author_id, content, created_at
+`
+
+type CraeteCommentParams struct {
+	PostID   sql.NullInt64 `json:"post_id"`
+	AuthorID sql.NullInt64 `json:"author_id"`
+	Content  string        `json:"content"`
+}
+
+func (q *Queries) CraeteComment(ctx context.Context, arg CraeteCommentParams) (Comments, error) {
+	row := q.db.QueryRowContext(ctx, craeteComment, arg.PostID, arg.AuthorID, arg.Content)
+	var i Comments
+	err := row.Scan(
+		&i.CommentID,
+		&i.PostID,
+		&i.AuthorID,
+		&i.Content,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const createPost = `-- name: CreatePost :one
 INSERT INTO posts(
     title,
@@ -36,6 +81,44 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Posts, 
 		&i.AuthorID,
 		&i.PublishedAt,
 		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getLikesForPost = `-- name: GetLikesForPost :one
+SELECT COUNT(*) FROM likes 
+WHERE post_id = $1
+`
+
+func (q *Queries) GetLikesForPost(ctx context.Context, postID sql.NullInt64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getLikesForPost, postID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const insertLikePost = `-- name: InsertLikePost :one
+INSERT INTO likes (
+    post_id,
+    author_id
+) VALUES (
+    $1, $2
+) RETURNING like_id, post_id, author_id, created_at
+`
+
+type InsertLikePostParams struct {
+	PostID   sql.NullInt64 `json:"post_id"`
+	AuthorID sql.NullInt64 `json:"author_id"`
+}
+
+func (q *Queries) InsertLikePost(ctx context.Context, arg InsertLikePostParams) (Likes, error) {
+	row := q.db.QueryRowContext(ctx, insertLikePost, arg.PostID, arg.AuthorID)
+	var i Likes
+	err := row.Scan(
+		&i.LikeID,
+		&i.PostID,
+		&i.AuthorID,
+		&i.CreatedAt,
 	)
 	return i, err
 }
