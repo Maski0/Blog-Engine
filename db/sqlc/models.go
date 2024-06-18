@@ -15,18 +15,18 @@ type Categories struct {
 }
 
 type Comments struct {
-	CommentID int64         `json:"comment_id"`
-	PostID    sql.NullInt64 `json:"post_id"`
-	AuthorID  sql.NullInt64 `json:"author_id"`
-	Content   string        `json:"content"`
-	CreatedAt sql.NullTime  `json:"created_at"`
+	CommentID int64        `json:"comment_id"`
+	PostID    int64        `json:"post_id"`
+	AuthorID  int64        `json:"author_id"`
+	Content   string       `json:"content"`
+	CreatedAt sql.NullTime `json:"created_at"`
 }
 
 type Likes struct {
-	LikeID    int64         `json:"like_id"`
-	PostID    sql.NullInt64 `json:"post_id"`
-	AuthorID  sql.NullInt64 `json:"author_id"`
-	CreatedAt sql.NullTime  `json:"created_at"`
+	LikeID    int64        `json:"like_id"`
+	PostID    int64        `json:"post_id"`
+	AuthorID  int64        `json:"author_id"`
+	CreatedAt sql.NullTime `json:"created_at"`
 }
 
 type PostCategories struct {
@@ -40,12 +40,12 @@ type PostTags struct {
 }
 
 type Posts struct {
-	PostID      int64         `json:"post_id"`
-	Title       string        `json:"title"`
-	Content     string        `json:"content"`
-	AuthorID    sql.NullInt64 `json:"author_id"`
-	PublishedAt sql.NullTime  `json:"published_at"`
-	UpdatedAt   sql.NullTime  `json:"updated_at"`
+	PostID      int64        `json:"post_id"`
+	Title       string       `json:"title"`
+	Content     string       `json:"content"`
+	AuthorID    int64        `json:"author_id"`
+	PublishedAt sql.NullTime `json:"published_at"`
+	UpdatedAt   sql.NullTime `json:"updated_at"`
 }
 
 type PostsPostCategories struct {

@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-// database Multiple Queries and Transactions
+// Store database Multiple Queries and Transactions
 type Store struct {
 	*Queries
 	db *sql.DB
@@ -37,7 +37,8 @@ func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
 }
 
 // Func for Like Transcation..
-func (store *Store) LikeAPost(ctx context.Context, post_id sql.NullInt64, author_id sql.NullInt64) error {
+func (store *Store) LikeAPost(ctx context.Context, post_id int64, author_id int64) (Likes, error) {
+	var result Likes
 	err := store.execTx(ctx, func(q *Queries) error {
 		exists, err := q.ChekIfLikeExists(ctx, ChekIfLikeExistsParams{
 			PostID:   post_id,
@@ -47,7 +48,7 @@ func (store *Store) LikeAPost(ctx context.Context, post_id sql.NullInt64, author
 			return err
 		}
 		if !exists {
-			_, err := q.InsertLikePost(ctx, InsertLikePostParams{
+			result, err = q.InsertLikePost(ctx, InsertLikePostParams{
 				PostID:   post_id,
 				AuthorID: author_id,
 			})
@@ -57,5 +58,5 @@ func (store *Store) LikeAPost(ctx context.Context, post_id sql.NullInt64, author
 		}
 		return nil
 	})
-	return err
+	return result, err
 }

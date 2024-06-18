@@ -9,21 +9,21 @@ CREATE TABLE "posts" (
     "post_id" bigserial PRIMARY KEY,
     "title" varchar NOT NULL,
     "content" text NOT NULL,
-    "author_id" bigint,
+    "author_id" bigint NOT NULL,
     "published_at" timestamptz DEFAULT (now()),
     "updated_at" timestamptz
 );
 CREATE TABLE "comments" (
     "comment_id" bigserial PRIMARY KEY,
-    "post_id" bigint,
-    "author_id" bigint,
+    "post_id" bigint NOT NULL,
+    "author_id" bigint NOT NULL,
     "content" text NOT NULL,
     "created_at" timestamptz DEFAULT (now())
 );
 CREATE TABLE "likes" (
     "like_id" bigserial PRIMARY KEY,
-    "post_id" bigint,
-    "author_id" bigint,
+    "post_id" bigint NOT NULL,
+    "author_id" bigint NOT NULL,
     "created_at" timestamptz DEFAULT (now())
 );
 CREATE TABLE "categories" (

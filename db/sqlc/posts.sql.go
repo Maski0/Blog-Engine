@@ -7,7 +7,6 @@ package BlogEnginedb
 
 import (
 	"context"
-	"database/sql"
 )
 
 const chekIfLikeExists = `-- name: ChekIfLikeExists :one
@@ -15,8 +14,8 @@ SELECT EXISTS (SELECT 1 FROM "likes" WHERE "post_id" = $1 AND "author_id" = $2)
 `
 
 type ChekIfLikeExistsParams struct {
-	PostID   sql.NullInt64 `json:"post_id"`
-	AuthorID sql.NullInt64 `json:"author_id"`
+	PostID   int64 `json:"post_id"`
+	AuthorID int64 `json:"author_id"`
 }
 
 func (q *Queries) ChekIfLikeExists(ctx context.Context, arg ChekIfLikeExistsParams) (bool, error) {
@@ -37,9 +36,9 @@ INSERT INTO comments(
 `
 
 type CraeteCommentParams struct {
-	PostID   sql.NullInt64 `json:"post_id"`
-	AuthorID sql.NullInt64 `json:"author_id"`
-	Content  string        `json:"content"`
+	PostID   int64  `json:"post_id"`
+	AuthorID int64  `json:"author_id"`
+	Content  string `json:"content"`
 }
 
 func (q *Queries) CraeteComment(ctx context.Context, arg CraeteCommentParams) (Comments, error) {
@@ -66,9 +65,9 @@ INSERT INTO posts(
 `
 
 type CreatePostParams struct {
-	Title    string        `json:"title"`
-	Content  string        `json:"content"`
-	AuthorID sql.NullInt64 `json:"author_id"`
+	Title    string `json:"title"`
+	Content  string `json:"content"`
+	AuthorID int64  `json:"author_id"`
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Posts, error) {
@@ -90,7 +89,7 @@ SELECT COUNT(*) FROM likes
 WHERE post_id = $1
 `
 
-func (q *Queries) GetLikesForPost(ctx context.Context, postID sql.NullInt64) (int64, error) {
+func (q *Queries) GetLikesForPost(ctx context.Context, postID int64) (int64, error) {
 	row := q.db.QueryRowContext(ctx, getLikesForPost, postID)
 	var count int64
 	err := row.Scan(&count)
@@ -107,8 +106,8 @@ INSERT INTO likes (
 `
 
 type InsertLikePostParams struct {
-	PostID   sql.NullInt64 `json:"post_id"`
-	AuthorID sql.NullInt64 `json:"author_id"`
+	PostID   int64 `json:"post_id"`
+	AuthorID int64 `json:"author_id"`
 }
 
 func (q *Queries) InsertLikePost(ctx context.Context, arg InsertLikePostParams) (Likes, error) {
