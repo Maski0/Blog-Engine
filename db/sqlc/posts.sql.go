@@ -9,23 +9,23 @@ import (
 	"context"
 )
 
-const chekIfLikeExists = `-- name: ChekIfLikeExists :one
+const checkIfLikeExists = `-- name: CheckIfLikeExists :one
 SELECT EXISTS (SELECT 1 FROM "likes" WHERE "post_id" = $1 AND "author_id" = $2)
 `
 
-type ChekIfLikeExistsParams struct {
+type CheckIfLikeExistsParams struct {
 	PostID   int64 `json:"post_id"`
 	AuthorID int64 `json:"author_id"`
 }
 
-func (q *Queries) ChekIfLikeExists(ctx context.Context, arg ChekIfLikeExistsParams) (bool, error) {
-	row := q.db.QueryRowContext(ctx, chekIfLikeExists, arg.PostID, arg.AuthorID)
+func (q *Queries) CheckIfLikeExists(ctx context.Context, arg CheckIfLikeExistsParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, checkIfLikeExists, arg.PostID, arg.AuthorID)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
 }
 
-const craeteComment = `-- name: CraeteComment :one
+const crateComment = `-- name: CrateComment :one
 INSERT INTO comments(
     post_id,
     author_id,
@@ -35,14 +35,14 @@ INSERT INTO comments(
 ) RETURNING comment_id, post_id, author_id, content, created_at
 `
 
-type CraeteCommentParams struct {
+type CrateCommentParams struct {
 	PostID   int64  `json:"post_id"`
 	AuthorID int64  `json:"author_id"`
 	Content  string `json:"content"`
 }
 
-func (q *Queries) CraeteComment(ctx context.Context, arg CraeteCommentParams) (Comments, error) {
-	row := q.db.QueryRowContext(ctx, craeteComment, arg.PostID, arg.AuthorID, arg.Content)
+func (q *Queries) CrateComment(ctx context.Context, arg CrateCommentParams) (Comments, error) {
+	row := q.db.QueryRowContext(ctx, crateComment, arg.PostID, arg.AuthorID, arg.Content)
 	var i Comments
 	err := row.Scan(
 		&i.CommentID,
@@ -51,6 +51,21 @@ func (q *Queries) CraeteComment(ctx context.Context, arg CraeteCommentParams) (C
 		&i.Content,
 		&i.CreatedAt,
 	)
+	return i, err
+}
+
+const createCategorie = `-- name: CreateCategorie :one
+INSERT INTO categories(
+    name
+) VALUES (
+    $1
+) RETURNING category_id, name, created_at
+`
+
+func (q *Queries) CreateCategorie(ctx context.Context, name string) (Categories, error) {
+	row := q.db.QueryRowContext(ctx, createCategorie, name)
+	var i Categories
+	err := row.Scan(&i.CategoryID, &i.Name, &i.CreatedAt)
 	return i, err
 }
 
@@ -81,6 +96,21 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Posts, 
 		&i.PublishedAt,
 		&i.UpdatedAt,
 	)
+	return i, err
+}
+
+const createTag = `-- name: CreateTag :one
+INSERT INTO tags(
+    name
+) VALUES (
+    $1
+) RETURNING tag_id, name, created_at
+`
+
+func (q *Queries) CreateTag(ctx context.Context, name string) (Tags, error) {
+	row := q.db.QueryRowContext(ctx, createTag, name)
+	var i Tags
+	err := row.Scan(&i.TagID, &i.Name, &i.CreatedAt)
 	return i, err
 }
 

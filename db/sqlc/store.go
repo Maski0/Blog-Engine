@@ -40,7 +40,7 @@ func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
 func (store *Store) LikeAPost(ctx context.Context, post_id int64, author_id int64) (Likes, error) {
 	var result Likes
 	err := store.execTx(ctx, func(q *Queries) error {
-		exists, err := q.ChekIfLikeExists(ctx, ChekIfLikeExistsParams{
+		exists, err := q.CheckIfLikeExists(ctx, CheckIfLikeExistsParams{
 			PostID:   post_id,
 			AuthorID: author_id,
 		})
